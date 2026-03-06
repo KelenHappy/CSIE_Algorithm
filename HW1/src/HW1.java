@@ -111,22 +111,20 @@ class Deck { // represents a pack of cards
 
 
 	// cuts the current packet in two at the position given by cut()
+
+	// cuts the current packet in two at the position given by cut()
 	Deck split() {
-        int cutPosition = cut();
-        // 如果牌組為空，返回空牌組
-        if (cutPosition == -1) {
-            return new Deck();
-        }
-        // 將後半部分牌移到新牌組
-        Deck newDeck = new Deck();
-        
-        // 將前 cutPosition 張牌移到新牌組
-        for (int i = 0; i < cutPosition; i++) {
-            newDeck.cards.addLast(cards.removeFirst());
-        }
-        
-        return newDeck;
-    }
+		int c = cut();
+		Deck left = new Deck();
+
+		for (int i = 0; i < c; i++) {
+			left.cards.addLast(cards.removeFirst());
+		}
+
+		return left;
+	}
+
+
 
 	// Question 2.2
 
@@ -314,16 +312,18 @@ class Battle { // represents a battle game
     }
     
     // plays a game with a fixed maximum number of moves
+    // plays a game with a fixed maximum number of moves
     int game(int turns) {
-        for (int i = 0; i < turns; i++) {
-            if (isOver()) {
-                return winner();
-            }
-            oneRound();
-        }
-        // 達到回合限制，根據當前牌數決定贏家
-        return winner();
+	for (int i = 0; i < turns; i++) {
+		// if a fold cannot be completed, the game ends immediately
+		if (!oneRound()) {
+			return winner();
+		}
+	}
+	// reached the maximum number of tricks
+	return winner();
     }
+
 
 
 	// Question 4.1
