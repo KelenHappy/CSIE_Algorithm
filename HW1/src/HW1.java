@@ -8,7 +8,6 @@ import java.util.LinkedList;
 
 class Deck { // represents a pack of cards
 
-	
 	LinkedList<Integer> cards;
 	// The methods toString, hashCode, equals, and copy are used for 
 	// display and testing, you should not modify them.
@@ -91,7 +90,6 @@ class Deck { // represents a pack of cards
 	// Question 2.1
 
 	// chooses a position for the cut
-	// chooses a position for the cut
     int cut() {
         if(cards.isEmpty()) {
             return 0;
@@ -111,8 +109,6 @@ class Deck { // represents a pack of cards
 
 
 	// cuts the current packet in two at the position given by cut()
-
-	// cuts the current packet in two at the position given by cut()
 	Deck split() {
 		int c = cut();
 		Deck left = new Deck();
@@ -129,21 +125,35 @@ class Deck { // represents a pack of cards
 	// Question 2.2
 
 	// mixes the current deck and the deck d
-    void riffleWith(Deck d) {
-        LinkedList<Integer> result = new LinkedList<Integer>();
-        
-        // 交錯地從兩個牌組取牌
-        while (!cards.isEmpty() || !d.cards.isEmpty()) {
-            // 隨機決定先從哪個牌組取牌（模擬真實的riffle shuffle）
-            if (!cards.isEmpty() && (d.cards.isEmpty() || Math.random() < 0.5)) {
-                result.addLast(cards.removeFirst());
-            } else if (!d.cards.isEmpty()) {
-                result.addLast(d.cards.removeFirst());
-            }
-        }
-        
-        cards = result;
+	// 需要更複雜
+
+	void riffleWith(Deck d) {
+		LinkedList<Integer> result = new LinkedList<Integer>();
+
+		while (!this.cards.isEmpty() || !d.cards.isEmpty()) {
+			if (this.cards.isEmpty()) {
+				result.addLast(d.cards.removeFirst());
+				continue;
+			}
+			if (d.cards.isEmpty()) {
+				result.addLast(this.cards.removeFirst());
+				continue;
+			}
+
+			int a = this.cards.size();
+			int b = d.cards.size();
+			double p = (double) a / (a + b); // probability to take from this deck
+
+			if (Math.random() < p) {
+				result.addLast(this.cards.removeFirst());
+			} else {
+				result.addLast(d.cards.removeFirst());
+			}
+		}
+
+		this.cards = result;
     }
+
 
 
 	// Question 2.3
@@ -233,67 +243,36 @@ class Battle { // represents a battle game
 
 	// effectue un tour de jeu
 	boolean oneRound() {
-		// 一開始就沒牌：無法開始這個 fold
 		if (player1.cards.isEmpty() || player2.cards.isEmpty()) {
 			return false;
 		}
 
-		Integer card1;
-		Integer card2;
+		int card1, card2;
 
-		// Step 1: each player draws a card and puts it in the trick
-		if (turn) {
-			card1 = trick.pick(player1);
-			card2 = trick.pick(player2);
-		} else {
-			card2 = trick.pick(player2);
-			card1 = trick.pick(player1);
-		}
-
+		card1 = trick.pick(player1);
+		card2 = trick.pick(player2);
 		if (card1 == -1 || card2 == -1) return false;
 
-		// Tie handling (“battle”): add one face-down card each (not compared),
-		// then return to step 1 (draw/compare again).
-		while (card1.equals(card2)) {
+		while (card1 == card2) {
 			if (player1.cards.isEmpty() || player2.cards.isEmpty()) {
 				return false;
 			}
+			trick.pick(player1);
+			trick.pick(player2);
 
-			// face-down cards (not compared)
-			if (turn) {
-				if (trick.pick(player1) == -1) return false;
-				if (trick.pick(player2) == -1) return false;
-			} else {
-				if (trick.pick(player2) == -1) return false;
-				if (trick.pick(player1) == -1) return false;
-			}
-
-			// back to step 1 (draw/compare)
 			if (player1.cards.isEmpty() || player2.cards.isEmpty()) {
 				return false;
 			}
-
-			if (turn) {
-				card1 = trick.pick(player1);
-				card2 = trick.pick(player2);
-			} else {
-				card2 = trick.pick(player2);
-				card1 = trick.pick(player1);
-			}
-
+			card1 = trick.pick(player1);
+			card2 = trick.pick(player2);
 			if (card1 == -1 || card2 == -1) return false;
 		}
 
-		// Step 2: winner takes trick, preserving trick order
 		if (card1 > card2) player1.pickAll(trick);
 		else player2.pickAll(trick);
 
-		// turn changes value (only when the fold was successful)
-		turn = !turn;
 		return true;
 	}
-
-
 
 	// Question 3.3
 
@@ -312,19 +291,13 @@ class Battle { // represents a battle game
     }
     
     // plays a game with a fixed maximum number of moves
-    // plays a game with a fixed maximum number of moves
     int game(int turns) {
-	for (int i = 0; i < turns; i++) {
-		// if a fold cannot be completed, the game ends immediately
-		if (!oneRound()) {
-			return winner();
-		}
-	}
-	// reached the maximum number of tricks
-	return winner();
+    	for (int i = 0; i < turns; i++) {
+    		if (isOver()) return winner();
+    		if (!oneRound()) return winner();
+    	}
+    	return winner();
     }
-
-
 
 	// Question 4.1
 
