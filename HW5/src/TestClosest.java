@@ -30,26 +30,21 @@ public abstract class TestClosest {
 			System.exit(1);
 		}
 
-		// we fill a 3d tree with the colors of pixels of an image,
-		// and we get a subset of the same points to use in the tests
-		Picture pic = new Picture("photo.jpg");
-		int height = pic.height();
-		int width = pic.width();
-		int stride = height * width / size;
-		assert size >= 0 && stride > 0 : "Parameter size incorrect";
-		assert runs <= size : "runs should be <= size";
-		int testStride = (size - 3) / (runs - 3);
+		// we generate random points instead of using an image
+		Random rand = new Random(0);
+		int testStride = (size > 3 && runs > 3) ? (size - 3) / (runs - 3) : 0;
 
 		KDTree tree = null;
 		Vector<double[]> testPoints = new Vector<double[]>();
 		for (int i = 0; i < size; i++) {
-			int c = pic.getRGB((i * stride) % width, i * stride / width);
 			double[] point = new double[3];
-			point[0] = (c >> 16) & 255;
-			point[1] = (c >> 8) & 255;
-			point[2] = c & 255;
+			point[0] = rand.nextInt(256);
+			point[1] = rand.nextInt(256);
+			point[2] = rand.nextInt(256);
 			tree = KDTree.insert(tree, point);
-			if (i < 3 || (i - 3) % testStride == 0 && testPoints.size() < runs)
+			if (testStride == 0 && testPoints.size() < runs)
+				testPoints.add(point);
+			else if (testStride > 0 && (i < 3 || (i - 3) % testStride == 0 && testPoints.size() < runs))
 				testPoints.add(point);
 		}
 		

@@ -38,10 +38,7 @@ public class TestAverage {
 			System.exit(1);
 		}
 
-		Picture pic = new Picture("photo.jpg");
-		// pic.show();
-
-		Random r = new Random();
+		Random r = new Random(0);
 
 		KDTree tree = null;
 		int iter = 20000;
@@ -50,14 +47,11 @@ public class TestAverage {
 		assert (size == 0) : "the number of nodes of tree is 0";
 
 		for (int i = 0; i < iter; i++) {
-			int row = r.nextInt(pic.height()), col = r.nextInt(pic.width());
-			int c = pic.getRGB(col, row);
-
 			// construction of the node labeled by a point which contains the 3 color coordinates
 			double[] point = new double[3];
-			point[0] = (c >> 16) & 255;
-			point[1] = (c >> 8) & 255;
-			point[2] = c & 255;
+			point[0] = r.nextInt(256);
+			point[1] = r.nextInt(256);
+			point[2] = r.nextInt(256);
 			tree = KDTree.insert(tree, point);
 		}
 		System.out.println("--Test of the method size ... ");
